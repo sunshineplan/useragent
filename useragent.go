@@ -1,8 +1,8 @@
 package main
 
 import (
-	"errors"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -10,32 +10,39 @@ import (
 	"github.com/anaskhan96/soup"
 )
 
-func getAgent(url string) (string, error) {
+var api, filename, agent string
+
+func getAgent() error {
 	soup.Header("User-Agent", "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
-	body, err := soup.Get(url)
+	body, err := soup.Get(api)
 	if err != nil {
-		return "", err
+		return err
 	}
+
 	ua := soup.HTMLParse(body).Find("span", "class", "code")
 	if ua.Error != nil {
-		return "", ua.Error
+		return ua.Error
 	}
-	if !strings.Contains(ua.Text(), "Chrome") {
-		return "", errors.New("Not Chrome")
+
+	agent = ua.Text()
+
+	if !strings.Contains(agent, "Chrome") {
+		return fmt.Errorf("bad result: %s", agent)
 	}
-	return ua.Text(), nil
+
+	return nil
 }
 
 func main() {
-	url := flag.String("url", "", "URL")
+	flag.StringVar(&api, "url", "", "URL")
+	flag.StringVar(&filename, "filename", "user-agent", "filename")
 	flag.Parse()
 
-	agent, err := getAgent(*url)
-	if err != nil {
+	if err := getAgent(); err != nil {
 		log.Fatal(err)
 	}
 
-	f, err := os.Create("chrome.txt")
+	f, err := os.Create(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
