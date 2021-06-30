@@ -28,7 +28,7 @@ jobs:
           git config user.email github-actions@github.com
           git add .
           git diff-index --quiet HEAD || echo ::set-output name=new_data::1
-          echo "::set-output name=date::$(TZ=CST date +'%Y-%m-%d')"
+          echo "::set-output name=date::$(TZ=PRC date +'%Y-%m-%d')"
           echo "::set-output name=body::$(cat user-agent)"
 
       - name: Commit
