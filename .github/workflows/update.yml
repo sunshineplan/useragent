@@ -1,0 +1,51 @@
+name: Update
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 1,15 * *'
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.x'
+
+      - name: Run
+        run: |
+          go mod download
+          go run useragent.go -url ${{ secrets.URL }}
+
+      - name: Check Update
+        id: check_update
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git diff-index --quiet HEAD || echo ::set-output name=new_data::1
+          echo "::set-output name=date::$(TZ=PRC date +'%Y-%m-%d')"
+          echo "::set-output name=body::$(cat user-agent)"
+
+      - name: Commit
+        if: steps.check_update.outputs.new_data == 1
+        run: |
+          git commit -m "Update"
+          git push
+
+      - name: Send backup email
+        if: steps.check_update.outputs.new_data == 1
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.live.com
+          server_port: 587
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          subject: UserAgent Update Success - ${{ steps.check_update.outputs.date }}
+          body: ${{ steps.check_update.outputs.body }}
+          from: Github Actions
+          to: ${{ secrets.TO }}
