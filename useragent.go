@@ -12,7 +12,7 @@ import (
 
 var (
 	api      = flag.String("url", "", "URL")
-	filename = flag.String("filename", "user-agent", "filename")
+	filename = flag.String("filename", "README.md", "filename")
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := os.WriteFile(*filename, []byte(agent), 0666); err != nil {
+	if err := os.WriteFile(*filename, []byte(agent), 0644); err != nil {
 		log.Fatal(err)
 	}
 }
