@@ -1,10 +1,7 @@
 module useragent
 
-go 1.19
+go 1.20
 
-require github.com/anaskhan96/soup v1.2.5
+require github.com/sunshineplan/node v1.0.0
 
-require (
-	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/text v0.7.0 // indirect
-)
+require golang.org/x/net v0.9.0 // indirect

@@ -1,13 +1,15 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 
-	"github.com/anaskhan96/soup"
+	"github.com/sunshineplan/node"
 )
 
 var (
@@ -29,18 +31,27 @@ func main() {
 }
 
 func getAgent() (string, error) {
-	soup.Header("User-Agent", "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
-	body, err := soup.Get(*api)
+	req, err := http.NewRequest("GET", *api, nil)
 	if err != nil {
 		return "", err
 	}
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
 
-	ua := soup.HTMLParse(body).Find("span", "class", "code")
-	if ua.Error != nil {
-		return "", ua.Error
+	doc, err := node.Parse(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	ua := doc.Find(0, node.Span, node.Class("code")).String()
+	if ua == nil {
+		return "", errors.New("no found")
 	}
 
-	agent := ua.Text()
+	agent := ua.String()
 	if !strings.Contains(agent, "Chrome") {
 		return "", fmt.Errorf("bad result: %s", agent)
 	}
