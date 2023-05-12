@@ -1,60 +1,75 @@
-package main
+package useragent
 
 import (
-	"errors"
-	"flag"
+	"context"
 	"fmt"
-	"log"
+	"io"
 	"net/http"
-	"os"
-	"strings"
-
-	"github.com/sunshineplan/node"
+	"runtime"
+	"sync"
+	"time"
 )
 
-var (
-	api      = flag.String("url", "", "URL")
-	filename = flag.String("filename", "README.md", "filename")
-)
+const url = "https://cdn.jsdelivr.net/gh/sunshineplan/useragent/%s"
 
-func main() {
-	flag.Parse()
+func SupportedOS() []string { return []string{"windows", "darwin", "linux", "ios", "android"} }
 
-	agent, err := getAgent()
-	if err != nil {
-		log.Fatal(err)
+var cache sync.Map
+
+// LatestByOS returns the latest Chrome user agent string for the specified operating system.
+func LatestByOS(os string) (string, error) {
+	var supported bool
+	for _, i := range SupportedOS() {
+		if os == i {
+			supported = true
+			break
+		}
+	}
+	if !supported {
+		os = "windows"
+	}
+	if res, ok := cache.Load(os); ok {
+		return res.(string), nil
 	}
 
-	if err := os.WriteFile(*filename, []byte(agent), 0644); err != nil {
-		log.Fatal(err)
-	}
-}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-func getAgent() (string, error) {
-	req, err := http.NewRequest("GET", *api, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf(url, os), nil)
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to fetch user agent string: %s", err)
 	}
 	defer resp.Body.Close()
 
-	doc, err := node.Parse(resp.Body)
+	if code := resp.StatusCode; code != 200 {
+		return "", fmt.Errorf("no StatusOK response: %d", code)
+	}
+
+	b, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
-	ua := doc.Find(0, node.Span, node.Class("code")).String()
-	if ua == nil {
-		return "", errors.New("no found")
-	}
 
-	agent := ua.String()
-	if !strings.Contains(agent, "Chrome") {
-		return "", fmt.Errorf("bad result: %s", agent)
-	}
+	cache.Store(os, string(b))
 
-	return agent, nil
+	return string(b), nil
+}
+
+// Latest returns the latest Chrome user agent string for current operating system.
+func Latest() (string, error) {
+	return LatestByOS(runtime.GOOS)
+}
+
+// UserAgent gets latest chrome user agent string, if failed to get string or
+// string is empty, the default string will be used.
+func UserAgent(defaultUserAgentString string) string {
+	ua, err := Latest()
+	if err != nil || ua == "" {
+		ua = defaultUserAgentString
+	}
+	return ua
 }

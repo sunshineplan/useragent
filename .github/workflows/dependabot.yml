@@ -19,10 +19,13 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.x'
+          go-version: stable
 
       - name: Test Code
-        run: go build -v ./...
+        run: |
+          go build -v ./...
+          cd update
+          go build -v ./...
 
   merge:
     if: ${{ github.actor == 'dependabot[bot]' }}
