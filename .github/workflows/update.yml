@@ -28,7 +28,6 @@ jobs:
           git add .
           git diff-index --quiet HEAD || echo "new_data=1" >> $GITHUB_OUTPUT
           echo "date=$(TZ=PRC date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
-          echo "body=$(cat README.md)" >> $GITHUB_OUTPUT
 
       - name: Commit
         if: steps.check_update.outputs.new_data == 1
@@ -45,6 +44,6 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           subject: UserAgent Update Success - ${{ steps.check_update.outputs.date }}
-          body: ${{ steps.check_update.outputs.body }}
+          html_body: file://README.md
           from: Github Actions
           to: ${{ secrets.TO }}
