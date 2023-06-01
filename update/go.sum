@@ -1,4 +1,4 @@
-github.com/sunshineplan/node v1.0.2 h1:565RXzJwYlD08feE0V3/h9nsq7dzKndZmUFv2XN9xoM=
-github.com/sunshineplan/node v1.0.2/go.mod h1:QUBwbyzEiphy/W4Xh4ZVwurkLSkTuqzabD3Ok+nhcPU=
-golang.org/x/net v0.9.0 h1:aWJ/m6xSmxWBx+V0XRHTlrYrPG56jKsLdTFmsSsCzOM=
-golang.org/x/net v0.9.0/go.mod h1:d48xBJpPfHeWQsugry2m+kC02ZBRGRgulfHnEXEuWns=
+github.com/sunshineplan/node v1.0.3 h1:qjUaYgjnhmmHOZ4njKNUuvVH3039BYHJQGPTrc9pWkI=
+github.com/sunshineplan/node v1.0.3/go.mod h1:H0S1dCxaxxy4Q1qDDtyeX9a66+ca1lD0ppPD1hS7UTw=
+golang.org/x/net v0.10.0 h1:X2//UzNDwYmtCLn7To6G58Wr6f5ahEAQgKNzv9Y951M=
+golang.org/x/net v0.10.0/go.mod h1:0qNGK6F8kojg2nk9dLZ2mShWaEBan6FAoqfSigmmuDg=
