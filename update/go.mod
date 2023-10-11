@@ -7,6 +7,6 @@ require (
 	github.com/sunshineplan/useragent v0.0.0-00010101000000-000000000000
 )
 
-require golang.org/x/net v0.10.0 // indirect
+require golang.org/x/net v0.17.0 // indirect
 
 replace github.com/sunshineplan/useragent => ../
