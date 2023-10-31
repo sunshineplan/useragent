@@ -16,6 +16,11 @@ func SupportedOS() []string { return []string{"windows", "darwin", "linux", "ios
 
 var cache sync.Map
 
+type value struct {
+	useragent string
+	expires   time.Time
+}
+
 // LatestByOS returns the latest Chrome user agent string for the specified operating system.
 func LatestByOS(os string) (string, error) {
 	var supported bool
@@ -29,7 +34,11 @@ func LatestByOS(os string) (string, error) {
 		os = "windows"
 	}
 	if res, ok := cache.Load(os); ok {
-		return res.(string), nil
+		if v := res.(value); v.expires.Before(time.Now()) {
+			cache.Delete(os)
+		} else {
+			return v.useragent, nil
+		}
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -54,7 +63,7 @@ func LatestByOS(os string) (string, error) {
 		return "", err
 	}
 
-	cache.Store(os, string(b))
+	cache.Store(os, value{string(b), time.Now().AddDate(0, 1, 0)})
 
 	return string(b), nil
 }
