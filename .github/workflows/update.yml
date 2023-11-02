@@ -45,5 +45,6 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           subject: UserAgent Update Success - ${{ steps.check_update.outputs.date }}
           html_body: file://README.md
+          convert_markdown: true
           from: Github Actions
           to: ${{ secrets.TO }}
