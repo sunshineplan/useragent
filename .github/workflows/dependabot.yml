@@ -23,8 +23,8 @@ jobs:
 
       - name: Test Code
         run: |
-          go build -v ./...
           cd update
+          go mod tidy
           go build -v ./...
 
   merge:
