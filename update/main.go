@@ -26,7 +26,11 @@ var api = flag.String("url", "", "URL")
 func main() {
 	flag.Parse()
 
-	if err := update(); err != nil {
+	html, err := fetch()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := parse(html); err != nil {
 		log.Fatal(err)
 	}
 	f, err := os.Create("README.md")
@@ -42,33 +46,39 @@ func main() {
 	}
 }
 
-func update() error {
+func fetch() (html node.Node, err error) {
 	req, err := http.NewRequest("GET", *api, nil)
 	if err != nil {
-		return err
+		return
 	}
 	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return err
+		return
 	}
 	defer resp.Body.Close()
 
-	doc, err := node.Parse(resp.Body)
-	if err != nil {
-		return err
-	}
+	html, err = node.Parse(resp.Body)
+	return
+}
+
+func parse(html node.Node) error {
 	for k, v := range list {
-		if h2 := doc.Find(0, node.Tag("h2"), node.String(regexp.MustCompile(v))); h2 != nil {
-			if span := h2.Find(node.Next, node.Span, node.Class("code")); span == nil {
-				return errors.New("no found")
-			} else {
+		if h2 := html.Find(0, node.H2, node.String(regexp.MustCompile(v))); h2 != nil {
+			if span := h2.Find(node.Next, node.Span, node.Class("code")); span != nil {
 				ua := span.GetText()
 				if err := os.WriteFile(k, []byte(ua), 0644); err != nil {
 					return err
 				}
 				list[k] = ua
+			} else {
+				return errors.New("no found")
 			}
+		} else {
+			if h1 := html.Find(0, node.H1); h1 != nil {
+				return errors.New(h1.GetText())
+			}
+			return errors.New("blocked")
 		}
 	}
 	return nil
