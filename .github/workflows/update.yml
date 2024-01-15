@@ -27,12 +27,18 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
           git diff-index --quiet HEAD || echo "new_data=1" >> $GITHUB_OUTPUT
-          echo "date=$(TZ=PRC date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Date
+        if: steps.check_update.outputs.new_data == 1
+        id: date
+        uses: actions/github-script@v7
+        with:
+          script: core.setOutput("date", new Date().toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai' }))
 
       - name: Commit
         if: steps.check_update.outputs.new_data == 1
         run: |
-          git commit -m ${{ steps.check_update.outputs.date }}
+          git commit -m ${{ steps.date.outputs.date }}
           git push
 
       - name: Send backup email
@@ -43,7 +49,7 @@ jobs:
           server_port: 587
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          subject: UserAgent Update Success - ${{ steps.check_update.outputs.date }}
+          subject: UserAgent Update Success - ${{ steps.date.outputs.date }}
           html_body: file://README.md
           convert_markdown: true
           from: Github Actions
