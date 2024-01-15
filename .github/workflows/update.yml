@@ -18,6 +18,7 @@ jobs:
 
       - name: Check Update
         id: check_update
+        shell: bash
         run: |
           cd update
           go build -ldflags "-s -w" -o ../run
