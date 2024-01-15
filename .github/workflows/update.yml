@@ -33,7 +33,8 @@ jobs:
         id: date
         uses: actions/github-script@v7
         with:
-          script: core.setOutput("date", new Date().toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai' }))
+          script: |
+            core.setOutput("date", new Date().toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai' }))
 
       - name: Commit
         if: steps.check_update.outputs.new_data == 1
