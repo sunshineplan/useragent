@@ -6,7 +6,10 @@ on:
 
 jobs:
   update:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-latest, ubuntu-latest, macos-14 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,9 +24,9 @@ jobs:
         shell: bash
         run: |
           cd update
-          go build -ldflags "-s -w" -o ../run
+          go build -o ../run
           cd ..
-          ./run -url ${{ secrets.URL }}
+          ./run
           git config user.name "GitHub Actions"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
@@ -40,7 +43,7 @@ jobs:
       - name: Commit
         if: steps.check_update.outputs.new_data == 1
         run: |
-          git commit -m ${{ steps.date.outputs.date }}
+          git commit -m ${{ steps.date.outputs.date }}(${{ matrix.os }})
           git push
 
       - name: Send backup email
@@ -51,7 +54,7 @@ jobs:
           server_port: 587
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          subject: UserAgent Update Success - ${{ steps.date.outputs.date }}
+          subject: UserAgent Update Success - ${{ steps.date.outputs.date }}(${{ matrix.os }})
           html_body: file://README.md
           convert_markdown: true
           from: Github Actions
