@@ -67,7 +67,7 @@ jobs:
       - name: Commit
         if: steps.summary.outputs.new_data == 1
         run: |
-          git commit -m "${{ steps.summary.outputs.date }}
+          git commit -m ${{ steps.summary.outputs.date }}
           git push
 
       - name: Send backup email
