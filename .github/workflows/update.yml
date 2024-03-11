@@ -43,18 +43,42 @@ jobs:
       - name: Commit
         if: steps.check_update.outputs.new_data == 1
         run: |
-          git commit -m "${{ steps.date.outputs.date }}(${{ matrix.os }})"
+          git commit -m "${{ steps.date.outputs.date }} (${{ matrix.os }})"
+          git pull
+          git push
+
+  summary:
+    runs-on: ubuntu-latest
+    needs: update
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Summary
+        id: summary
+        run: |
+          bash summary.sh
+          git config user.name "GitHub Actions"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff-index --quiet HEAD || echo "new_data=1" >> $GITHUB_OUTPUT
+          echo "date=$(TZ=PRC date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Commit
+        if: steps.summary.outputs.new_data == 1
+        run: |
+          git commit -m "${{ steps.summary.outputs.date }}
           git push
 
       - name: Send backup email
-        if: steps.check_update.outputs.new_data == 1
+        if: steps.summary.outputs.new_data == 1
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: ${{ secrets.SERVER }}
           server_port: 587
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
-          subject: UserAgent Update Success - ${{ steps.date.outputs.date }}(${{ matrix.os }})
+          subject: UserAgent Update Success - ${{ steps.summary.outputs.date }}
           html_body: file://README.md
           convert_markdown: true
           from: Github Actions
