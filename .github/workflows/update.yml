@@ -43,7 +43,7 @@ jobs:
       - name: Commit
         if: steps.check_update.outputs.new_data == 1
         run: |
-          git commit -m ${{ steps.date.outputs.date }}(${{ matrix.os }})
+          git commit -m "${{ steps.date.outputs.date }}(${{ matrix.os }})"
           git push
 
       - name: Send backup email
