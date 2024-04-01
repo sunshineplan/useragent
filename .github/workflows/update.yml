@@ -44,10 +44,18 @@ jobs:
 
       - name: Commit
         if: steps.check_update.outputs.new_data == 1
-        run: |
-          git commit -m "${{ steps.date.outputs.date }} (${{ matrix.os }})"
-          git pull
-          git push
+        run: git commit -m "${{ steps.date.outputs.date }} (${{ matrix.os }})"
+
+      - name: Push
+        if: steps.check_update.outputs.new_data == 1
+        uses: nick-invision/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: |
+            git pull
+            git push
 
   summary:
     if: ${{ needs.update.outputs.new_data == 1 }}
