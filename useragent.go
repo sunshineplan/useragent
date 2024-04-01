@@ -12,7 +12,7 @@ import (
 
 const url = "https://cdn.jsdelivr.net/gh/sunshineplan/useragent/%s"
 
-func SupportedOS() []string { return []string{"windows", "darwin", "linux", "ios", "android"} }
+func SupportedOS() []string { return []string{"windows", "darwin", "linux"} }
 
 var cache sync.Map
 

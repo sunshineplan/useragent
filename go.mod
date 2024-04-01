@@ -1,3 +1,3 @@
 module github.com/sunshineplan/useragent
 
-go 1.21
+go 1.22

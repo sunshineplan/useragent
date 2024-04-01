@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OUTPUT="README.md"
-OS=(windows darwin linux ios android)
+OS=(windows darwin linux)
 
 truncate -s 0 $OUTPUT
 for i in "${OS[@]}"; do
