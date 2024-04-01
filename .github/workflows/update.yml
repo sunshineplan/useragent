@@ -6,7 +6,7 @@ on:
 
 jobs:
   update:
-    runs-on: ${{ matrix.os 
+    runs-on: ${{ matrix.os }}
     outputs:
       new_data: ${{ steps.check_update.outputs.new_data }}
     strategy:
