@@ -7,11 +7,9 @@ on:
 jobs:
   update:
     runs-on: ${{ matrix.os }}
-    outputs:
-      new_data: ${{ steps.check_update.outputs.new_data }}
     strategy:
       matrix:
-        os: [ windows-latest, ubuntu-latest, macos-14 ]
+        os: [ windows-latest, ubuntu-latest, macos-latest ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -68,15 +66,21 @@ jobs:
       - name: Summary
         id: summary
         run: |
-          echo "date=$(TZ=PRC date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
           bash summary.sh
           git config user.name "GitHub Actions"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
+          git diff-index --quiet HEAD || echo "new_data=1" >> $GITHUB_OUTPUT
+          echo "date=$(TZ=PRC date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Commit
+        if: steps.summary.outputs.new_data == 1
+        run: |
           git commit -m ${{ steps.summary.outputs.date }}
           git push
 
       - name: Send backup email
+        if: steps.summary.outputs.new_data == 1
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: ${{ secrets.SERVER }}
