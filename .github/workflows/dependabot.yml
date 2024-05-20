@@ -24,7 +24,8 @@ jobs:
       - name: Test Code
         run: |
           cd update
-          go run.
+          go build -v ./...
+          go run .
 
   merge:
     if: ${{ github.actor == 'dependabot[bot]' }}

@@ -1,4 +1,4 @@
-module main
+module update
 
 go 1.22
 
