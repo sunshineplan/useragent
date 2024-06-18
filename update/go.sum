@@ -18,8 +18,8 @@ github.com/mailru/easyjson v0.7.7 h1:UGYAvKxe3sBsEDzO8ZeWOSlIQfWFlxbzLZe7hwFURr0
 github.com/mailru/easyjson v0.7.7/go.mod h1:xzfreul335JAWq5oZzymOObrkdz5UnU4kGfJJLY9Nlc=
 github.com/orisano/pixelmatch v0.0.0-20220722002657-fb0b55479cde h1:x0TT0RDC7UhAVbbWWBzr41ElhJx5tXPWkIHA2HWPRuw=
 github.com/orisano/pixelmatch v0.0.0-20220722002657-fb0b55479cde/go.mod h1:nZgzbfBr3hhjoZnS66nKrHmduYNpc34ny7RK4z5/HM0=
-github.com/sunshineplan/chrome v1.1.16 h1:Ivy6Z+tswJZdDmP6evXXHWwCYYzqt2fKueOjyQPRwb0=
-github.com/sunshineplan/chrome v1.1.16/go.mod h1:T6BhKe32SqLd2/i4DdBTbmM+2UKn17l4F2r17nltxSg=
+github.com/sunshineplan/chrome v1.1.17 h1:bG29dVOaWhkiouM+OV9VcfpulLG/RzeEuAuppF03M2w=
+github.com/sunshineplan/chrome v1.1.17/go.mod h1:T6BhKe32SqLd2/i4DdBTbmM+2UKn17l4F2r17nltxSg=
 golang.org/x/sys v0.6.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.16.0 h1:xWw16ngr6ZMtmxDyKyIgsE93KNKz5HKmMa3b8ALHidU=
 golang.org/x/sys v0.16.0/go.mod h1:/VUhepiaJMQUp4+oa/7Zr1D23ma6VTLIYjOOTFZPUcA=
