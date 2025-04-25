@@ -82,7 +82,7 @@ jobs:
 
       - name: Send backup email
         if: steps.summary.outputs.new_data == 1
-        uses: dawidd6/action-send-mail@v4
+        uses: dawidd6/action-send-mail@v5
         with:
           server_address: ${{ secrets.SERVER }}
           server_port: 587
