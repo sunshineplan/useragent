@@ -2,7 +2,7 @@ module update
 
 go 1.24
 
-require github.com/sunshineplan/chrome v1.1.25
+require github.com/sunshineplan/chrome v1.1.26
 
 require (
 	github.com/chromedp/cdproto v0.0.0-20250724212937-08a3db8b4327 // indirect
