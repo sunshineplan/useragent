@@ -6,10 +6,7 @@ on:
 
 jobs:
   update:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ windows-latest, ubuntu-latest, macos-latest ]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -21,7 +18,6 @@ jobs:
 
       - name: Check Update
         id: check_update
-        shell: bash
         run: |
           cd update
           go build -o ../run
@@ -31,18 +27,11 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
           git diff-index --quiet HEAD || echo "new_data=1" >> $GITHUB_OUTPUT
-
-      - name: Date
-        if: steps.check_update.outputs.new_data == 1
-        id: date
-        uses: actions/github-script@v7
-        with:
-          script: |
-            core.setOutput("date", new Date().toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai' }))
+          echo "date=$(TZ=PRC date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
 
       - name: Commit
         if: steps.check_update.outputs.new_data == 1
-        run: git commit -m "${{ steps.date.outputs.date }} (${{ matrix.os }})"
+        run: git commit -m "${{ steps.check_update.outputs.date }}"
 
       - name: Push
         if: steps.check_update.outputs.new_data == 1

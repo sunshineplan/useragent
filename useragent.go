@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"runtime"
 	"sync"
 	"time"
+
+	"github.com/sunshineplan/useragent/internal/verhist"
 )
 
-const url = "https://cdn.jsdelivr.net/gh/sunshineplan/useragent/%s"
-
-func SupportedOS() []string { return []string{"windows", "darwin", "linux"} }
+const baseURL = "https://cdn.jsdelivr.net/gh/sunshineplan/useragent/%s"
 
 var cache sync.Map
 
@@ -22,20 +21,13 @@ type value struct {
 }
 
 // LatestByOS returns the latest Chrome user agent string for the specified operating system.
-func LatestByOS(os string) (string, error) {
-	var supported bool
-	for _, i := range SupportedOS() {
-		if os == i {
-			supported = true
-			break
-		}
+func LatestByOS(platform Platform) (string, error) {
+	if platform.Normalize(); platform == "" {
+		platform = Windows
 	}
-	if !supported {
-		os = "windows"
-	}
-	if res, ok := cache.Load(os); ok {
+	if res, ok := cache.Load(platform); ok {
 		if v := res.(value); v.expires.Before(time.Now()) {
-			cache.Delete(os)
+			cache.Delete(platform)
 		} else {
 			return v.useragent, nil
 		}
@@ -44,41 +36,48 @@ func LatestByOS(os string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf(url, os), nil)
+	useragent, err := verhist.UserAgent(ctx, platform.String(), "stable")
 	if err != nil {
-		return "", err
-	}
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("failed to fetch user agent string: %s", err)
-	}
-	defer resp.Body.Close()
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
 
-	if code := resp.StatusCode; code != 200 {
-		return "", fmt.Errorf("no StatusOK response: %d", code)
+		req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf(baseURL, platform.String()), nil)
+		if err != nil {
+			return "", err
+		}
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return "", fmt.Errorf("failed to fetch user agent string: %s", err)
+		}
+		defer resp.Body.Close()
+
+		if code := resp.StatusCode; code != 200 {
+			return "", fmt.Errorf("no StatusOK response: %d", code)
+		}
+
+		b, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return "", err
+		}
+		useragent = string(b)
 	}
 
-	b, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
+	cache.Store(platform, value{useragent, time.Now().AddDate(0, 1, 0)})
 
-	cache.Store(os, value{string(b), time.Now().AddDate(0, 1, 0)})
-
-	return string(b), nil
+	return useragent, nil
 }
 
 // Latest returns the latest Chrome user agent string for current operating system.
 func Latest() (string, error) {
-	return LatestByOS(runtime.GOOS)
+	return LatestByOS(parseGOOS())
 }
 
 // UserAgent gets latest chrome user agent string, if failed to get string or
-// string is empty, the default string will be used.
-func UserAgent(defaultUserAgentString string) string {
+// string is empty, the fallback string will be used.
+func UserAgent(fallback string) string {
 	ua, err := Latest()
 	if err != nil || ua == "" {
-		ua = defaultUserAgentString
+		return fallback
 	}
 	return ua
 }
