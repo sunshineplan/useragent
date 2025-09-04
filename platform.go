@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// https://versionhistory.googleapis.com/v1/chrome/platforms/
 const (
 	Windows   Platform = "win"
 	Windows64 Platform = "win64"
@@ -13,14 +14,13 @@ const (
 	MacARM64  Platform = "mac_arm64"
 	Linux     Platform = "linux"
 	Android   Platform = "android"
-	//WebView   Platform = "webview"
-	//IOS       Platform = "ios"
-	//Lacros    Platform = "lacros"
 )
 
 type Platform string
 
-func (p Platform) String() string { return string(p) }
+func (p Platform) String() string {
+	return strings.ToLower(string(p))
+}
 
 func SupportedPlatforms() []Platform {
 	return []Platform{
@@ -30,14 +30,11 @@ func SupportedPlatforms() []Platform {
 		MacARM64,
 		Linux,
 		Android,
-		//WebView,
-		//IOS,
-		//Lacros,
 	}
 }
 
 func (p *Platform) Normalize() {
-	*p = Platform(strings.ToLower(string(*p)))
+	*p = Platform(p.String())
 	if !slices.Contains(SupportedPlatforms(), *p) {
 		*p = Platform("")
 	}
