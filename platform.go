@@ -13,9 +13,9 @@ const (
 	MacARM64  Platform = "mac_arm64"
 	Linux     Platform = "linux"
 	Android   Platform = "android"
-	WebView   Platform = "webview"
-	IOS       Platform = "ios"
-	Lacros    Platform = "lacros"
+	//WebView   Platform = "webview"
+	//IOS       Platform = "ios"
+	//Lacros    Platform = "lacros"
 )
 
 type Platform string
@@ -30,9 +30,9 @@ func SupportedPlatforms() []Platform {
 		MacARM64,
 		Linux,
 		Android,
-		WebView,
-		IOS,
-		Lacros,
+		//WebView,
+		//IOS,
+		//Lacros,
 	}
 }
 
@@ -59,8 +59,8 @@ func parseGOOS() Platform {
 		return Linux
 	case "android":
 		return Android
-	case "ios":
-		return IOS
+	//case "ios":
+	//	return IOS
 	default:
 		return ""
 	}

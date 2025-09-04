@@ -2,16 +2,13 @@ package useragent
 
 import (
 	"context"
-	"fmt"
-	"io"
-	"net/http"
 	"sync"
 	"time"
 
 	"github.com/sunshineplan/useragent/internal/verhist"
 )
 
-const baseURL = "https://cdn.jsdelivr.net/gh/sunshineplan/useragent/%s"
+const baseURL = "https://cdn.jsdelivr.net/gh/sunshineplan/useragent/"
 
 var cache sync.Map
 
@@ -41,25 +38,9 @@ func LatestByOS(platform Platform) (string, error) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 
-		req, err := http.NewRequestWithContext(ctx, "GET", fmt.Sprintf(baseURL, platform.String()), nil)
-		if err != nil {
+		if err := verhist.Grab(ctx, baseURL+platform.String(), &useragent); err != nil {
 			return "", err
 		}
-		resp, err := http.DefaultClient.Do(req)
-		if err != nil {
-			return "", fmt.Errorf("failed to fetch user agent string: %s", err)
-		}
-		defer resp.Body.Close()
-
-		if code := resp.StatusCode; code != 200 {
-			return "", fmt.Errorf("no StatusOK response: %d", code)
-		}
-
-		b, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return "", err
-		}
-		useragent = string(b)
 	}
 
 	cache.Store(platform, value{useragent, time.Now().AddDate(0, 1, 0)})

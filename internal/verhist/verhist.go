@@ -1,3 +1,4 @@
+// https://github.com/chromedp/verhist
 package verhist
 
 import (
@@ -7,6 +8,11 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+)
+
+const (
+	defaultVersion = "140.0.0.0"
+	uaFormat       = "Mozilla/5.0 (%s) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/%s%s Safari/537.36"
 )
 
 var BaseURL = "https://versionhistory.googleapis.com/v1/chrome/platforms/"
@@ -19,7 +25,7 @@ func Versions(ctx context.Context, platform, channel string, q ...string) ([]Ver
 		}
 	}
 	res := new(VersionsResponse)
-	if err := grab(ctx, BaseURL+platform+"/channels/"+channel+"/versions", res, q...); err != nil {
+	if err := Grab(ctx, BaseURL+platform+"/channels/"+channel+"/versions", res, q...); err != nil {
 		return nil, err
 	}
 	return res.Versions, nil
@@ -69,15 +75,15 @@ func (ver Version) UserAgent(platform string) string {
 	case "android":
 		typ, extra = "Linux; Android 10; K", " Mobile"
 	}
-	v := "140.0.0.0"
+	v := defaultVersion
 	if i := strings.Index(ver.Version, "."); i != -1 {
 		v = ver.Version[:i] + ".0.0.0"
 	}
-	return fmt.Sprintf("Mozilla/5.0 (%s) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/%s%s Safari/537.36", typ, v, extra)
+	return fmt.Sprintf(uaFormat, typ, v, extra)
 }
 
-// grab grabs the url and json decodes it.
-func grab(ctx context.Context, urlstr string, v any, q ...string) error {
+// Grab grabs the url and json decodes it.
+func Grab(ctx context.Context, urlstr string, v any, q ...string) error {
 	if len(q)%2 != 0 {
 		return fmt.Errorf("invalid query")
 	}
