@@ -80,5 +80,5 @@ jobs:
           subject: UserAgent Update Success - ${{ steps.summary.outputs.date }}
           html_body: file://README.md
           convert_markdown: true
-          from: Github Actions
+          from: ${{ secrets.USERNAME }}
           to: ${{ secrets.TO }}
